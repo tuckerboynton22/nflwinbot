@@ -1,8 +1,6 @@
 name: nflwinbot
 
-on:
-  schedule:
-    - cron: '0-59 * * * *'  # once every minute
+on: [push]
     
 jobs:
   nflwinbot-post:
