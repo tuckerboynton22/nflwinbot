@@ -2,7 +2,7 @@ name: nflwinbot
 
 on:
   schedule:
-    - cron: '*/5 * * * *'  # once every minute
+    - cron: '0-59 * * * *'  # once every minute
     
 jobs:
   nflwinbot-post:
