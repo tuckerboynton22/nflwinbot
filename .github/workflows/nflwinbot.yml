@@ -2,6 +2,7 @@ name: nflwinbot
 
 on:
   schedule:
+    - push:
     - cron: '*/5 * * * *'
     
 jobs:
