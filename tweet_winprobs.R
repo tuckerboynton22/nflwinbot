@@ -92,7 +92,7 @@ if (nrow(live_games) > 0) {
     mutate(old = 1) %>%
     rbind(old_plays) %>%
     distinct() %>%
-    write.csv("old_plays.csv", row.names = F)
+    readr::write_csv("old_plays.csv", row.names = F)
   
   # get plays we haven't tweeted yet
   for_tweeting <- plays %>%
