@@ -36,7 +36,7 @@ jobs:
           key: dp-tweets-${{ steps.install-r.outputs.installed-r-version }}-${{ hashFiles('.github/r-depends.rds') }}
           restore-keys: dp-tweets-${{ steps.install-r.outputs.installed-r-version }}-
 
-      - name: Install system dependencies
+      - name: Install system dependencies 
         run: |
           pak::local_system_requirements(execute = TRUE)
           pak::pak(c("ropensci/rtweet"), dependencies = TRUE)
