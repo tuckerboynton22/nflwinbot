@@ -2,10 +2,6 @@ library(tidyverse)
 
 # Install the package from CRAN
 
-plays %>%
-  select(play_desc, home_wp, home_score, away_score, wpa) %>%
-  View()
-
 calculate_winprobs <- function(pbp){
   
   n <- nrow(pbp)
@@ -20,7 +16,7 @@ calculate_winprobs <- function(pbp){
 # get live games
 live_games <- readRDS(url(
   "http://www.habitatring.com/games_alt.rds"
-)) %>%
+  )) %>%
   # dplyr::filter(
   # 
   #   # hasn't finished yet
