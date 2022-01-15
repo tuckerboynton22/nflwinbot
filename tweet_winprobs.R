@@ -1,6 +1,7 @@
 library(tidyverse)
-library(espnscrapeR)
 library(xgboost)
+library(remotes)
+remotes::install_github("jthomasmock/espnscrapeR")
 
 # wp_model <- xgb.load('wp.model')
 # if (file.exists('xgb.model')) file.remove('xgb.model')
