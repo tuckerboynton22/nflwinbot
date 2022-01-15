@@ -1,6 +1,14 @@
+install.packages("tidyverse")
+install.packages("espnscrapeR")
+install.packages("xgboost")
+install.packages("rtweet")
 library(tidyverse)
+library(espnscrapeR)
+library(xgboost)
 
-# Install the package from CRAN
+# wp_model <- xgb.load('xgb.model')
+# if (file.exists('xgb.model')) file.remove('xgb.model')
+# pred <- predict(bst, test$data)
 
 calculate_winprobs <- function(pbp){
   
