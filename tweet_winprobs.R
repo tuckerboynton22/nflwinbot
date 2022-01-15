@@ -126,7 +126,7 @@ if (nrow(live_games) > 0) {
       
       if (x == 2){
         
-        df <- for_tweeting %>% slice(x)
+        df <- for_tweeting %>% dplyr::slice(x)
         play_desc <- df$play_desc %>% substr(1, 100)
         posteam <- df$pos_team_abb
         defteam <- if_else(df$pos_team_abb == df$home_team_abb, df$away_team_abb, df$home_team_abb)
