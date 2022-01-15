@@ -1,10 +1,7 @@
 name: nflwinbot
 
 on:
-  push:
-  schedule:
-    - cron: '*/5 * * * *'
-    
+
 jobs:
   nflwinbot-post:
     runs-on: macOS-latest
