@@ -1,13 +1,10 @@
-install.packages("tidyverse")
-install.packages("xgboost")
-install.packages("rtweet")
 library(tidyverse)
 library(espnscrapeR)
 library(xgboost)
 
-wp_model <- xgb.load('wp.model')
-if (file.exists('xgb.model')) file.remove('xgb.model')
-pred <- predict(wp_model, as.matrix(test_data %>% select(-all_of(nonmodel_features), -label)))
+# wp_model <- xgb.load('wp.model')
+# if (file.exists('xgb.model')) file.remove('xgb.model')
+# pred <- predict(wp_model, as.matrix(test_data %>% select(-all_of(nonmodel_features), -label)))
 
 calculate_winprobs <- function(pbp){
   
