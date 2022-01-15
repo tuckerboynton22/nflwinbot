@@ -157,7 +157,7 @@ if (nrow(live_games) > 0) {
           access_secret = Sys.getenv("TWITTER_ACCESS_TOKEN_SECRET")
         )
         
-        # Example: post a tweet via the API
+        # Example: post a tweet via the API 
         # The keys will are in your environment thanks to create_token()
         rtweet::post_tweet(text, token = token)
       
