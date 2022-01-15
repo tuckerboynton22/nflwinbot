@@ -44,4 +44,6 @@ jobs:
         shell: Rscript {0}
         
       - name: Create and post tweet
-        run: Rscript tweet_winprobs.R
+        run: |
+          remotes::install_github("jthomasmock/espnscrapeR")
+          Rscript tweet_winprobs.R
