@@ -1,6 +1,9 @@
 name: nflwinbot
 
-on: [push]
+on:
+  push:
+  schedule:
+    - cron: '*/5 * * * *'
     
 jobs:
   nflwinbot-post:
@@ -18,6 +21,6 @@ jobs:
       - name: Install tidyverse package
         run: Rscript -e 'install.packages("tidyverse", dependencies = TRUE)'
       - name: Install espnscrapeR package
-        run: Rscript -e 'install.packages("espnscrapeR", dependencies = TRUE)'
+        run: Rscript -e 'remotes::install_github("jthomasmock/espnscrapeR")'
       - name: Create and post tweet
         run: Rscript tweet_winprobs.R
