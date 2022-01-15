@@ -20,6 +20,8 @@ jobs:
         run: Rscript -e 'install.packages("rtweet", dependencies = TRUE)'
       - name: Install tidyverse package
         run: Rscript -e 'install.packages("tidyverse", dependencies = TRUE)'
+      - name: Install remotes package
+        run: Rscript -e 'install.packages("remotes", dependencies = TRUE)'
       - name: Install espnscrapeR package
         run: Rscript -e 'remotes::install_github("jthomasmock/espnscrapeR")'
       - name: Create and post tweet
