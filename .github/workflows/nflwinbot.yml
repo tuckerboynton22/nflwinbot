@@ -16,5 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: r-lib/actions/setup-r@master
+      - name: Try espnscrapeR
+        run: Rscript download_espnscrapeR.R
       - name: Create and post tweet
         run: Rscript tweet_winprobs.R
