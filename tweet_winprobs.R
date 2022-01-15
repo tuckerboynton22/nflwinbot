@@ -51,7 +51,7 @@ live_games <- readRDS(url(
   ) %>%
   # dplyr::filter(started == 1) %>%
   # dplyr::filter(grepl("2016", game_id, fixed = T)) %>%
-  dplyr::filter(espn == "400927752") %>%
+  dplyr::filter(espn == "401326627") %>%
   dplyr::select(game_id, espn, home_team, away_team, week)
 
 
