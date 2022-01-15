@@ -54,25 +54,23 @@ live_games <- readRDS(url(
   dplyr::filter(espn == "401326627") %>%
   dplyr::select(game_id, espn, home_team, away_team, week)
 
-
-
 if (nrow(live_games) > 0) {
   
   # # get all the 4th down functions here
   # source('scripts/helpers.R')
   
   # get list of old plays before we do anything
-  if (file.exists("old_plays.rds")) {
+  if (file.exists("old_plays.csv")) {
     
     # read the file if it exists
-    old_plays <- readRDS("old_plays.rds")
+    old_plays <- readr::read_csv("old_plays.csv")
     
     # if it's just an empty df, make a dummy df
     # this prevents errors down the line
     if (!"game_id" %in% names(old_plays)) {
       old_plays <- tibble::tibble(
         "game_id" = as.character("XXXXXX"),
-        "play_id" = as.character(0),
+        "play_id" = as.integer(0),
         "old" = as.integer(1)
       )
       # if existing plays file looks okay, take game id and index
@@ -86,7 +84,7 @@ if (nrow(live_games) > 0) {
     # this is so we can remove the file if we want to start over
     old_plays <- tibble::tibble(
       "game_id" = as.character("XXXXXX"),
-      "play_id" = as.character(0),
+      "play_id" = as.integer(0),
       "old" = as.integer(1)
     )
   }
@@ -107,7 +105,10 @@ if (nrow(live_games) > 0) {
              (start_down == 4 & !grepl("Punt", play_type, fixed = T) & play_type != "Penalty" & play_type != "End Period" & play_type != "End of Game"))
   
   # save updated list of plays we've done
-  saveRDS(plays, "old_plays.rds")
+  plays %>%
+    mutate(game_id = as.character(game_id)) %>%
+    select(game_id, play_id) %>%
+    write.csv("old_plays.csv")
   
   # get plays we haven't tweeted yet
   for_tweeting <- plays %>%
