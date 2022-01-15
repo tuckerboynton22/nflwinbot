@@ -103,6 +103,7 @@ if (nrow(live_games) > 0) {
     filter(scoring_play == 1 |
              grepl("Interception", play_type, fixed = T) |
              play_type == "Fumble Recovery (Opponent)" |
+             play_type == "Sack" |
              (start_down == 4 & !grepl("Punt", play_type, fixed = T) & play_type != "Penalty" & play_type != "End Period" & play_type != "End of Game"))
   
   # save updated list of plays we've done
