@@ -39,10 +39,9 @@ jobs:
         run: |
           pak::local_system_requirements(execute = TRUE)
           pak::pak(c("ropensci/rtweet"), dependencies = TRUE)
+          pak::pak(c("jthomasmock/espnscrapeR"), dependencies = TRUE)
           pak::local_install_dev_deps(upgrade = TRUE)
         shell: Rscript {0}
         
       - name: Create and post tweet
-        run: |
-          remotes::install_github("jthomasmock/espnscrapeR")
-          Rscript tweet_winprobs.R
+        run: Rscript tweet_winprobs.R
