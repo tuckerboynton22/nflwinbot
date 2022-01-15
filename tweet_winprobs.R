@@ -1,6 +1,8 @@
 library(tidyverse)
 library(espnscrapeR)
 
+options(scipen=9999999)
+
 calculate_winprobs <- function(pbp){
   
   n <- nrow(pbp)
@@ -63,14 +65,16 @@ if (nrow(live_games) > 0) {
   if (file.exists("old_plays.csv")) {
     
     # read the file if it exists
-    old_plays <- readr::read_csv("old_plays.csv")
+    old_plays <- readr::read_csv("old_plays.csv") %>%
+      mutate(game_id = as.character(game_id),
+             play_id = as.character(play_id))
     
     # if it's just an empty df, make a dummy df
     # this prevents errors down the line
     if (!"game_id" %in% names(old_plays)) {
       old_plays <- tibble::tibble(
         "game_id" = as.character("XXXXXX"),
-        "play_id" = as.integer(0),
+        "play_id" = as.character(0),
         "old" = as.integer(1)
       )
       # if existing plays file looks okay, take game id and index
@@ -84,7 +88,7 @@ if (nrow(live_games) > 0) {
     # this is so we can remove the file if we want to start over
     old_plays <- tibble::tibble(
       "game_id" = as.character("XXXXXX"),
-      "play_id" = as.integer(0),
+      "play_id" = as.character(0),
       "old" = as.integer(1)
     )
   }
@@ -112,6 +116,8 @@ if (nrow(live_games) > 0) {
   
   # get plays we haven't tweeted yet
   for_tweeting <- plays %>%
+    mutate(game_id = as.character(game_id),
+           play_id = as.character(play_id)) %>%
     left_join(old_plays, by = c("game_id","play_id")) %>%
     filter(is.na(old))
   
