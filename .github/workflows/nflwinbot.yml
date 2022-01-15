@@ -1,7 +1,6 @@
 name: nflwinbot
 
 on:
-  push:
   schedule:
     - cron: '*/5 * * * *'
     
@@ -9,6 +8,7 @@ jobs:
   nflwinbot-post:
     runs-on: macOS-latest
     env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       TWITTER_CONSUMER_API_KEY: ${{ secrets.TWITTER_CONSUMER_API_KEY }}
       TWITTER_CONSUMER_API_SECRET: ${{ secrets.TWITTER_CONSUMER_API_SECRET }}
       TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
@@ -16,9 +16,31 @@ jobs:
     
     steps:
       - uses: actions/checkout@v2
-      - uses: r-lib/actions/setup-r@master
+
+      - uses: r-lib/actions/setup-r@v1
         id: install-r
-      - name: Try espnscrapeR
-        run: Rscript download_espnscrapeR.R
+
+      - name: Install pak and query dependencies
+        run: |
+          install.packages("pak", repos = "https://r-lib.github.io/p/pak/dev/")
+          saveRDS(pak::pkg_deps("local::.", dependencies = TRUE), ".github/r-depends.rds")
+        shell: Rscript {0}
+
+      - name: Restore R package cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ${{ env.R_LIBS_USER }}/*
+            !${{ env.R_LIBS_USER }}/pak
+          key: dp-tweets-${{ steps.install-r.outputs.installed-r-version }}-${{ hashFiles('.github/r-depends.rds') }}
+          restore-keys: dp-tweets-${{ steps.install-r.outputs.installed-r-version }}-
+
+      - name: Install system dependencies
+        run: |
+          pak::local_system_requirements(execute = TRUE)
+          pak::pak(c("ropensci/rtweet"), dependencies = TRUE)
+          pak::local_install_dev_deps(upgrade = TRUE)
+        shell: Rscript {0}
+        
       - name: Create and post tweet
         run: Rscript tweet_winprobs.R
