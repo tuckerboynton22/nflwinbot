@@ -62,36 +62,11 @@ if (nrow(live_games) > 0) {
   # source('scripts/helpers.R')
   
   # get list of old plays before we do anything
-  if (file.exists("old_plays.csv")) {
-    
-    # read the file if it exists
-    old_plays <- readr::read_csv("old_plays.csv") %>%
-      mutate(game_id = as.character(game_id),
-             play_id = as.character(play_id))
-    
-    # if it's just an empty df, make a dummy df
-    # this prevents errors down the line
-    if (!"game_id" %in% names(old_plays)) {
-      old_plays <- tibble::tibble(
-        "game_id" = as.character("XXXXXX"),
-        "play_id" = as.character(0),
-        "old" = as.integer(1)
-      )
-      # if existing plays file looks okay, take game id and index
-    } else {
-      old_plays <- old_plays %>%
-        dplyr::select(game_id, play_id) %>%
-        dplyr::mutate(old = 1)
-    }
-  } else {
-    # if file doesn't exist, make the dummy df to prevent join errors later
-    # this is so we can remove the file if we want to start over
-    old_plays <- tibble::tibble(
-      "game_id" = as.character("XXXXXX"),
-      "play_id" = as.character(0),
-      "old" = as.integer(1)
-    )
-  }
+
+  # read the file if it exists
+  old_plays <- readr::read_csv("old_plays.csv") %>%
+    mutate(game_id = as.character(game_id),
+           play_id = as.character(play_id))
   
   # get updated plays from ongoing games
   plays <- purrr::map_df(1 : nrow(live_games), function(x) {
@@ -112,7 +87,10 @@ if (nrow(live_games) > 0) {
   plays %>%
     mutate(game_id = as.character(game_id)) %>%
     select(game_id, play_id) %>%
-    write.csv("old_plays.csv")
+    mutate(old = 1) %>%
+    rbind(old_plays) %>%
+    distinct() %>%
+    write.csv("old_plays.csv", row.names = F)
   
   # get plays we haven't tweeted yet
   for_tweeting <- plays %>%
