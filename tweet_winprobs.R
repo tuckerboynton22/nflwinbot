@@ -100,7 +100,6 @@ if (nrow(live_games) > 0) {
            play_id = as.character(play_id)) %>%
     left_join(old_plays, by = c("game_id","play_id")) %>%
     filter(is.na(old))
-  
   # if there are plays to tweet, load the library and tweet
   if (nrow(for_tweeting) > 0) {
     
