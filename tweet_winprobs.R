@@ -3,8 +3,6 @@ library(espnscrapeR)
 
 options(scipen=9999999)
 
-# dlfkajsdf
-
 calculate_winprobs <- function(pbp){
   
   n <- nrow(pbp)
@@ -92,7 +90,7 @@ if (nrow(live_games) > 0) {
     mutate(old = 1) %>%
     rbind(old_plays) %>%
     distinct() %>%
-    readr::write_csv("old_plays.csv")
+    readr::write_csv("data/old_plays.csv")
   
   # get plays we haven't tweeted yet
   for_tweeting <- plays %>%
