@@ -99,6 +99,8 @@ if (nrow(live_games) > 0) {
     distinct() %>%
     readr::write_csv("data/old_plays.csv")
   
+  
+  
   # get plays we haven't tweeted yet
   for_tweeting <- plays %>%
     mutate(game_id = as.character(game_id),
