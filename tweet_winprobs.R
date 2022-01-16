@@ -19,15 +19,15 @@ calculate_winprobs <- function(pbp){
 live_games <- readRDS(url(
   "http://www.habitatring.com/games_alt.rds"
   )) %>%
-  dplyr::filter(
-
-    # hasn't finished yet
-    is.na(result),
-
-    # happening today
-    gameday == as.character(lubridate::today("US/Pacific"))
-
-  ) %>%
+  # dplyr::filter(
+  #   
+  #   # hasn't finished yet
+  #   is.na(result),
+  #   
+  #   # happening today
+  #   gameday == as.character(lubridate::today("US/Pacific"))
+  #   
+  # ) %>%
   dplyr::mutate(
     # there's probably a better way to do this but it seems to work
     current_hour = lubridate::hour(lubridate::now()),
@@ -54,7 +54,7 @@ live_games <- readRDS(url(
   ) %>%
   # dplyr::filter(started == 1) %>%
   # dplyr::filter(grepl("2016", game_id, fixed = T)) %>%
-  dplyr::filter(espn == "401326627") %>%
+  dplyr::filter(espn == "401326626") %>%
   dplyr::select(game_id, espn, home_team, away_team, week)
 
 if (nrow(live_games) > 0) {
@@ -63,7 +63,7 @@ if (nrow(live_games) > 0) {
   # source('scripts/helpers.R')
   
   # get list of old plays before we do anything
-
+  
   # read the file if it exists
   old_plays <- readr::read_csv("data/old_plays.csv") %>%
     mutate(game_id = as.character(game_id),
@@ -87,6 +87,9 @@ if (nrow(live_games) > 0) {
                 play_type != "End of Game" & play_type != "Two-minute warning"))
   
   # save updated list of plays we've done
+  
+  print(plays)
+  
   plays %>%
     mutate(game_id = as.character(game_id)) %>%
     select(game_id, play_id) %>%
@@ -112,18 +115,18 @@ if (nrow(live_games) > 0) {
     # do the thing
     for (x in 1:nrow(for_tweeting)) {
       
-        df <- for_tweeting %>% dplyr::slice(x)
-        play_desc <- df$play_desc %>% substr(1, 100)
-        posteam <- df$pos_team_abb
-        defteam <- if_else(df$pos_team_abb == df$home_team_abb, df$away_team_abb, df$home_team_abb)
-        wpa_direction <- ifelse(df$wpa > 0, "+", "")
-        home_team_price <- ifelse(df$home_wp < 0.5, 100/df$home_wp - 100, -100*df$home_wp/(1-df$home_wp))
-        away_team_price <- ifelse((1-df$home_wp) < 0.5, 100/(1-df$home_wp) - 100, -100*(1-df$home_wp)/(df$home_wp))
-        home_team_price <- ifelse(home_team_price > 0, paste0("+", round(home_team_price)), round(home_team_price))
-        away_team_price <- ifelse(away_team_price > 0, paste0("+", round(away_team_price)), round(away_team_price))
-        
-        text <-
-          glue::glue("{df$away_team_abb} {df$away_score} @ {df$home_team_abb} {df$home_score}
+      df <- for_tweeting %>% dplyr::slice(x)
+      play_desc <- df$play_desc %>% substr(1, 100)
+      posteam <- df$pos_team_abb
+      defteam <- if_else(df$pos_team_abb == df$home_team_abb, df$away_team_abb, df$home_team_abb)
+      wpa_direction <- ifelse(df$wpa > 0, "+", "")
+      home_team_price <- ifelse(df$home_wp < 0.5, 100/df$home_wp - 100, -100*df$home_wp/(1-df$home_wp))
+      away_team_price <- ifelse((1-df$home_wp) < 0.5, 100/(1-df$home_wp) - 100, -100*(1-df$home_wp)/(df$home_wp))
+      home_team_price <- ifelse(home_team_price > 0, paste0("+", round(home_team_price)), round(home_team_price))
+      away_team_price <- ifelse(away_team_price > 0, paste0("+", round(away_team_price)), round(away_team_price))
+      
+      text <-
+        glue::glue("{df$away_team_abb} {df$away_score} @ {df$home_team_abb} {df$home_score}
         
         {df$pos_team_abb} {df$start_text}
         
@@ -131,18 +134,18 @@ if (nrow(live_games) > 0) {
         
         {df$home_team_abb} {round(df$home_wp*100, 1)}% ({home_team_price})
         {df$away_team_abb} {100 - round(df$home_wp*100, 1)}% ({away_team_price})")
-        
-        token <- rtweet::create_token(
-          app = "nflwinbot",  # the name of the Twitter app
-          consumer_key = Sys.getenv("TWITTER_CONSUMER_API_KEY"),
-          consumer_secret = Sys.getenv("TWITTER_CONSUMER_API_SECRET"),
-          access_token = Sys.getenv("TWITTER_ACCESS_TOKEN"),
-          access_secret = Sys.getenv("TWITTER_ACCESS_TOKEN_SECRET")
-        )
-        
-        # Example: post a tweet via the API 
-        # The keys will are in your environment thanks to create_token()
-        rtweet::post_tweet(text, token = token)
+      
+      token <- rtweet::create_token(
+        app = "nflwinbot",  # the name of the Twitter app
+        consumer_key = Sys.getenv("TWITTER_CONSUMER_API_KEY"),
+        consumer_secret = Sys.getenv("TWITTER_CONSUMER_API_SECRET"),
+        access_token = Sys.getenv("TWITTER_ACCESS_TOKEN"),
+        access_secret = Sys.getenv("TWITTER_ACCESS_TOKEN_SECRET")
+      )
+      
+      # Example: post a tweet via the API 
+      # The keys will are in your environment thanks to create_token()
+      rtweet::post_tweet(text, token = token)
       
     }
     
