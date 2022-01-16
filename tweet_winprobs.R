@@ -3,10 +3,6 @@ library(espnscrapeR)
 
 options(scipen=9999999)
 
-plays %>%
-  select(home_wp, wpa, play_desc) %>%
-  View()
-
 calculate_winprobs <- function(pbp){
   
   n <- nrow(pbp)
