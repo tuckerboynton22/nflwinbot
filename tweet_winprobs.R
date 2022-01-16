@@ -4,6 +4,8 @@ library(espnscrapeR)
 options(remove(list=ls()))
 options(scipen=9999999)
 
+game_url <- glue::glue("http://site.api.espn.com/apis/site/v2/sports/football/nfl/summary")
+
 calculate_winprobs <- function(pbp){
   
   n <- nrow(pbp)
@@ -19,28 +21,16 @@ calculate_winprobs <- function(pbp){
 live_games <- readRDS(url(
   "http://www.habitatring.com/games_alt.rds"
   )) %>%
-  # dplyr::filter(
-  #   
-  #   # hasn't finished yet
-  #   is.na(result),
-  #   
-  #   # happening today
-  #   gameday == as.character(lubridate::today("US/Pacific"))
-  #   
-  # ) %>%
+  dplyr::filter(
+
+    # hasn't finished yet
+    is.na(result),
+
+    # happening today
+    gameday == as.character(lubridate::today("US/Pacific"))
+
+  ) %>%
   dplyr::mutate(
-    # there's probably a better way to do this but it seems to work
-    current_hour = lubridate::hour(lubridate::now()),
-    current_minute = lubridate::minute(lubridate::now()),
-    game_hour = as.integer(substr(gametime, 1, 2)),
-    game_minute = as.integer(substr(gametime, 4, 5)),
-    # has already started
-    started = dplyr::case_when(
-      current_hour > game_hour ~ 1,
-      current_hour == game_hour & current_minute >= game_minute + 5 ~ 1,
-      TRUE ~ 0
-    ),
-    #
     espn = dplyr::case_when(
       # hard code for playoff games not in Lee's file
       game_id == "2021_19_LV_CIN"   ~ "401326627",
@@ -52,20 +42,18 @@ live_games <- readRDS(url(
       TRUE ~ espn
     )
   ) %>%
-  # dplyr::filter(started == 1) %>%
-  # dplyr::filter(grepl("2016", game_id, fixed = T)) %>%
-  dplyr::filter(espn == "401326626") %>%
+  rowwise() %>%
+  ## Check that drive info exists on ESPN (i.e., that it's started)
+  mutate(
+    started = !is.null(httr::content(httr::GET(game_url, query = list(event = espn)))[["drives"]][["previous"]])
+  ) %>%
+  ungroup() %>%
+  dplyr::filter(started == 1) %>%
   dplyr::select(game_id, espn, home_team, away_team, week)
-
 
 if (nrow(live_games) > 0) {
   
-  # # get all the 4th down functions here
-  # source('scripts/helpers.R')
-  
-  # get list of old plays before we do anything
-  
-  # read the file if it exists
+  # read file of old plays
   old_plays <- readr::read_csv("data/old_plays.csv") %>%
     mutate(game_id = as.character(game_id),
            play_id = as.character(play_id))
@@ -74,25 +62,22 @@ if (nrow(live_games) > 0) {
   plays <- purrr::map_df(1 : nrow(live_games), function(x) {
     
     message(glue::glue("{x}: game {live_games %>% dplyr::slice(x) %>% pull(espn)}"))
-    calculate_winprobs(espnscrapeR::get_nfl_pbp(live_games %>% dplyr::slice(x) %>% pull(espn)))
+    espnscrapeR::get_nfl_pbp(live_games %>% dplyr::slice(x) %>% pull(espn))
     
   })
   
-  
-  
   plays <- plays %>%
+    mutate(play_desc = stringr::str_replace(play_desc, "\\([:digit:]*\\:[:digit:]+\\)\\s", "")) %>%
     filter(scoring_play == 1 |
              grepl("Interception", play_type, fixed = T) |
              play_type == "Fumble Recovery (Opponent)" |
              play_type == "Sack" |
              (start_down == 4 & !grepl("Punt", play_type, fixed = T) & 
-                play_type != "Penalty" & play_type != "End Period" & play_type != "Timeout" &
+                play_type != "End of Half" & play_type != "Penalty" & 
+                play_type != "End Period" & play_type != "Timeout" &
                 play_type != "End of Game" & play_type != "Two-minute warning"))
   
   # save updated list of plays we've done
-  
-  print(plays)
-  
   plays %>%
     mutate(game_id = as.character(game_id)) %>%
     select(game_id, play_id) %>%
@@ -100,8 +85,6 @@ if (nrow(live_games) > 0) {
     rbind(old_plays) %>%
     distinct() %>%
     readr::write_csv("data/old_plays.csv")
-  
-  
   
   # get plays we haven't tweeted yet
   for_tweeting <- plays %>%
@@ -121,7 +104,7 @@ if (nrow(live_games) > 0) {
     for (x in 1:nrow(for_tweeting)) {
       
       df <- for_tweeting %>% dplyr::slice(x)
-      play_desc <- df$play_desc %>% substr(1, 100)
+      play_desc <- df$play_desc %>% substr(1, 200)
       posteam <- df$pos_team_abb
       defteam <- if_else(df$pos_team_abb == df$home_team_abb, df$away_team_abb, df$home_team_abb)
       wpa_direction <- ifelse(df$wpa > 0, "+", "")
@@ -135,10 +118,10 @@ if (nrow(live_games) > 0) {
         
         {df$pos_team_abb} {df$start_text}
         
-        Q{df$quarter} {play_desc}
+        Q{df$quarter} ({df$clock_text}) {play_desc}
         
-        {df$home_team_abb} {round(df$home_wp*100, 1)}% ({home_team_price})
-        {df$away_team_abb} {round(100 - df$home_wp*100, 1)}% ({away_team_price})")
+        {df$home_team_abb}: {round(df$home_wp*100, 1)}% ({home_team_price})
+        {df$away_team_abb}: {round(100 - df$home_wp*100, 1)}% ({away_team_price})")
       
       token <- rtweet::create_token(
         app = "nflwinbot",  # the name of the Twitter app
