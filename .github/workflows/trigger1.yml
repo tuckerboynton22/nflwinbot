@@ -1,0 +1,6 @@
+name: trigger1
+
+on:
+  push:
+  schedule:
+    - cron: '*/5 * * * *'
