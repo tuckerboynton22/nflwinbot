@@ -78,6 +78,8 @@ if (nrow(live_games) > 0) {
     
   })
   
+  
+  
   plays <- plays %>%
     filter(scoring_play == 1 |
              grepl("Interception", play_type, fixed = T) |
