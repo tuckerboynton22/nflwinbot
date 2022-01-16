@@ -4,6 +4,10 @@ on:
   push:
   schedule:
     - cron: '*/5 * * * *'
+  workflow_run:
+    workflows: [nflwinbot]
+    types:
+      - completed
 
 jobs:
   nflwinbot-post:
