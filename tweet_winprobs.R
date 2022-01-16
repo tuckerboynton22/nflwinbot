@@ -64,7 +64,7 @@ if (nrow(live_games) > 0) {
   # get list of old plays before we do anything
 
   # read the file if it exists
-  old_plays <- readr::read_csv("old_plays.csv") %>%
+  old_plays <- readr::read_csv("data/old_plays.csv") %>%
     mutate(game_id = as.character(game_id),
            play_id = as.character(play_id))
   
