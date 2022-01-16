@@ -9,3 +9,5 @@ on:
 jobs:
   nflwinbot-trigger:
     runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v2
