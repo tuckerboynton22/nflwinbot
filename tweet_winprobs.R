@@ -3,6 +3,10 @@ library(espnscrapeR)
 
 options(scipen=9999999)
 
+plays %>%
+  select(home_wp, wpa, play_desc) %>%
+  View()
+
 calculate_winprobs <- function(pbp){
   
   n <- nrow(pbp)
@@ -129,8 +133,6 @@ if (nrow(live_games) > 0) {
         {df$pos_team_abb} {df$start_text}
         
         Q{df$quarter} {play_desc}
-        
-        WP effect: {df$home_team_abb} {wpa_direction}{round(df$wpa*100, 1)}
         
         {df$home_team_abb} {round(df$home_wp*100, 1)}% ({home_team_price})
         {df$away_team_abb} {100 - round(df$home_wp*100, 1)}% ({away_team_price})")
