@@ -46,3 +46,11 @@ jobs:
         
       - name: Create and post tweet
         run: Rscript tweet_winprobs.R
+        
+      - name: Commit and Push
+        run: |
+          git config --local user.name "GitHub Actions"
+          git config --local user.email "actions@github.com"
+          git add .
+          git commit -m "Tweeted on `date`" || echo "No changes to commit"
+          git push || echo "No changes to commit"
