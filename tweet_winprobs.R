@@ -134,7 +134,7 @@ if (nrow(live_games) > 0) {
         Q{df$quarter} {play_desc}
         
         {df$home_team_abb} {round(df$home_wp*100, 1)}% ({home_team_price})
-        {df$away_team_abb} {round(100 - df$home_wp*100), 1}% ({away_team_price})")
+        {df$away_team_abb} {round(100 - df$home_wp*100, 1)}% ({away_team_price})")
       
       token <- rtweet::create_token(
         app = "nflwinbot",  # the name of the Twitter app
