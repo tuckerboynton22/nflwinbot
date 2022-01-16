@@ -1,6 +1,7 @@
 library(tidyverse)
 library(espnscrapeR)
 
+options(remove(list=ls()))
 options(scipen=9999999)
 
 calculate_winprobs <- function(pbp){
@@ -81,7 +82,9 @@ if (nrow(live_games) > 0) {
              grepl("Interception", play_type, fixed = T) |
              play_type == "Fumble Recovery (Opponent)" |
              play_type == "Sack" |
-             (start_down == 4 & !grepl("Punt", play_type, fixed = T) & play_type != "Penalty" & play_type != "End Period" & play_type != "End of Game"))
+             (start_down == 4 & !grepl("Punt", play_type, fixed = T) & 
+                play_type != "Penalty" & play_type != "End Period" & play_type != "Timeout" &
+                play_type != "End of Game" & play_type != "Two-minute warning"))
   
   # save updated list of plays we've done
   plays %>%
@@ -118,10 +121,6 @@ if (nrow(live_games) > 0) {
         away_team_price <- ifelse((1-df$home_wp) < 0.5, 100/(1-df$home_wp) - 100, -100*(1-df$home_wp)/(df$home_wp))
         home_team_price <- ifelse(home_team_price > 0, paste0("+", round(home_team_price)), round(home_team_price))
         away_team_price <- ifelse(away_team_price > 0, paste0("+", round(away_team_price)), round(away_team_price))
-        
-        # table <- make_table(tableData, df)
-        # 
-        # table %>% gtsave("bot/post.png")
         
         text <-
           glue::glue("{df$away_team_abb} {df$away_score} @ {df$home_team_abb} {df$home_score}
